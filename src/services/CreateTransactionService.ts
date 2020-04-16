@@ -24,19 +24,9 @@ class CreateTransactionService {
     const transactionsRepository = getCustomRepository(TransactionRepository);
     const categoryRepository = getCustomRepository(CategoriesRepository);
 
-    const categoryExists = await categoryRepository.findOne({
+    const wantedCategory = await categoryRepository.findOne({
       where: { title: category },
     });
-
-    if (!categoryExists) {
-      const createdCategory = categoryRepository.create({
-        title: category,
-      });
-
-      savedCategory = await categoryRepository.save(createdCategory);
-    } else {
-      savedCategory = categoryExists;
-    }
 
     const balance = await transactionsRepository.getBalance();
 
@@ -44,6 +34,16 @@ class CreateTransactionService {
       throw new AppError(
         'You dont have enough balance to make this transaction',
       );
+    }
+
+    if (wantedCategory) {
+      savedCategory = wantedCategory;
+    } else {
+      const createdCategory = await categoryRepository.create({
+        title: category,
+      });
+
+      savedCategory = await categoryRepository.save(createdCategory);
     }
 
     const transaction = transactionsRepository.create({
@@ -54,12 +54,6 @@ class CreateTransactionService {
     });
 
     const transactionCreated = await transactionsRepository.save(transaction);
-
-    delete transactionCreated.updated_at;
-    delete transactionCreated.created_at;
-    delete transactionCreated.category_id;
-    delete transactionCreated.category.created_at;
-    delete transactionCreated.category.updated_at;
 
     return transactionCreated;
   }
