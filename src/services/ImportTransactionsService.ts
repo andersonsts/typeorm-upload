@@ -9,39 +9,38 @@ interface Request {
   fileName: string;
 }
 
+interface RequestTransaction {
+  title: string;
+  type: 'income' | 'outcome';
+  value: number;
+  category: string;
+}
+
 class ImportTransactionsService {
   async execute({ fileName }: Request): Promise<Transaction[]> {
-    const importedTransactions = [];
-
     const filePath = path.join(uploadConfig.directory, fileName);
     const createTransaction = new CreateTransactionService();
 
     const transactions = await csv().fromFile(filePath);
 
-    const [
-      importedTransaction1,
-      importedTransaction2,
-      importedTransaction3,
-    ] = transactions;
+    async function processArray(
+      transactionsArray: RequestTransaction[],
+    ): Promise<void> {
+      for (const transaction of transactionsArray) {
+        const { title, type, value, category } = transaction;
 
-    // importedTransactions = transactions.map(async transaction =>
-    //   createTransaction.execute(transaction),
-    // );
+        await createTransaction.execute({
+          title,
+          type,
+          value,
+          category,
+        });
+      }
+    }
 
-    const createdTransaction1 = await createTransaction.execute(
-      importedTransaction1,
-    );
-    importedTransactions.push(createdTransaction1);
-    const createdTransaction2 = await createTransaction.execute(
-      importedTransaction2,
-    );
-    importedTransactions.push(createdTransaction2);
-    const createdTransaction3 = await createTransaction.execute(
-      importedTransaction3,
-    );
-    importedTransactions.push(createdTransaction3);
+    await processArray(transactions);
 
-    return importedTransactions;
+    return transactions;
   }
 }
 
