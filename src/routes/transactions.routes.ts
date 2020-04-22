@@ -13,11 +13,10 @@ const transactionsRouter = Router();
 const upload = multer(uploadConfig);
 
 transactionsRouter.get('/', async (request, response) => {
-  const transactionRepository = getCustomRepository(TransactionsRepository);
+  const transactionsRepository = getCustomRepository(TransactionsRepository);
 
-  const transactions = await transactionRepository.find();
-
-  const balance = await transactionRepository.getBalance();
+  const transactions = await transactionsRepository.find();
+  const balance = await transactionsRepository.getBalance();
 
   return response.json({
     transactions,
@@ -45,7 +44,7 @@ transactionsRouter.delete('/:id', async (request, response) => {
 
   const deleteTransaction = new DeleteTransactionService();
 
-  await deleteTransaction.execute({ id });
+  await deleteTransaction.execute(id);
 
   return response.status(204).send();
 });

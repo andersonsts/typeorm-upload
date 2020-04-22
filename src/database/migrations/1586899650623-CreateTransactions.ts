@@ -17,17 +17,16 @@ export default class CreateTransactions1586899650623
           {
             name: 'title',
             type: 'varchar',
-            isNullable: false,
           },
           {
             name: 'value',
-            type: 'int',
-            isNullable: false,
+            type: 'decimal',
+            precision: 10,
+            scale: 2,
           },
           {
             name: 'type',
             type: 'varchar',
-            isNullable: false,
           },
           {
             name: 'created_at',
